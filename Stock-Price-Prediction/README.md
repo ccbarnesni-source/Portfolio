@@ -6,9 +6,9 @@ This notebook aims to address whether or not ARIMA models can outperform random 
 
 ## Key Findings
 
-- Directional accuracy: 54.99%
-- p-value 0.03
-- ARIMA models have a small, but statistically significant predictive power
+  - Directional accuracy: 54.99%
+  - p-value 0.032
+  - ARIMA models have a small, but statistically significant predictive power
 
 ## Data
 
@@ -26,8 +26,9 @@ python 3.11.15
 3. Install dependencies
   `pip install -r requirements.txt`
 4. Open the notebook
-  - For VS Code run `code .` and then select the notebook from the explorer
-  - In Jupyter: run `jupyter notebook` and navigate to Stock-Price-Prediction.ipynb
-5. Run all cells
-  Note that the walk-forward validation loop at the end can take up to 10 minutes to run depending on your device's capabilities.
+    - In VS Code: run `code .` and then select the notebook `Stock-Price-Prediction.ipynb` from the explorer.
+    - In Jupyter: run `jupyter notebook` and navigate to the notebook.
+5. Run all cells <br>
+
+  Note: the walk-forward validation loop at the end can take up to $\approx 6$  minutes to run if updating every 20 trading days depending on your device's capabilities.
 
