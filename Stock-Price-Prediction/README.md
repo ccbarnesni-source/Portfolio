@@ -10,6 +10,8 @@ This notebook aims to address whether or not ARIMA models can outperform random 
   - p-value 0.032
   - ARIMA models have a small, but statistically significant predictive power
 
+![Forecasted Values](Forecast.png)
+
 ## Data
 
 The yfinance API is used to retrieve Costco (COST) stock closing prices from 1990 to 2025. Notebook retrieves data automatically upon execution.
