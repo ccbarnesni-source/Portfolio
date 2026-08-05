@@ -40,6 +40,15 @@ def coefficients(X, y, lam, n_iters=10000, step_size=1e-3):
     OUTPUTS:
     beta - a p x 1 array of lasso regression coefficients
     '''
+
+    # Check hyperparameter is valid
+    if lam<0:
+        raise ValueError(f'Must have lam>=0, got {lam}.')
+
+    # If pandas series/dataframe is given, convert to a numpy array first
+    X = np.asarray(X)
+    y = np.asarray(y)
+
     n, p = X.shape
     XX = X.T @ X  
     Xy = X.T @ y 
@@ -49,7 +58,7 @@ def coefficients(X, y, lam, n_iters=10000, step_size=1e-3):
 
     # Gradient descent
     for i in range(n_iters):
-        grad = -2*Xy + 2*XX@beta + lam*grad_l1(beta)
+        grad = -2*Xy + 2*XX @ beta + lam*grad_l1(beta)
         
         # Gradient descent update
         beta = beta - grad*step_size

@@ -14,10 +14,12 @@ def coefficients(X,y,lam):
     an p x 1 array of ridge regression coefficients
     '''
 
-    N, M = X.shape
+    # Check hyperparameter is valid
+    if lam<0:
+        raise ValueError(f'Must have lam>=0, got {lam}.')
     
     # Calculate the parameters
-    
+    N, M = X.shape
     I = np.identity(M)
     beta = (np.linalg.inv(X.T @ X + lam * I)) @ X.T @ y
     
