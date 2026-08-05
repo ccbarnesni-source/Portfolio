@@ -6,7 +6,41 @@ import models.knn
 import models.logistic
 import tools.statistics
 
-def cross_val_score(X, y, folds, model_type, lam=None, k=None):
+# A sub-function for logistic models for evaluating the score on a single fold.
+
+def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5):
+    '''
+    Returns the accuracy of the logistic model on a single fold.
+
+    INPUTS:
+    X_train       - N x P array of the k-1 remaining folds.
+    y_train       - N x 1 array of corresponding target variable.
+    X_test        - M x P array of the k^th fold to be tested.
+    y_test        - M x 1 array of corresponding target variable.
+    thres         - The threshold at which classification decisions are made.
+
+    OUTPUTS:
+    acc           - The accuracy of the model measured on a single fold.
+    '''
+    
+    # Initialise the vector beta and the corresponding intercept term
+    beta = np.zeros(shape = (X_train.shape[1],1), dtype=float)
+    beta_0 = 0
+
+    # Obtain the parameter estimates for this fold
+    params, _, _ = models.logistic.optimise(X_train, y_train, beta, beta_0)
+    beta = params['beta']
+    beta_0 = params['beta_0']
+
+    # Obtain the prediction and measure the accuracy
+    y_pred = models.logistic.predict(X_test, beta, beta_0, thres=thres)
+    acc = tools.statistics.classification_score(y_test, y_pred)[0]
+    
+    return acc
+
+# The primary cross-validation scoring function
+
+def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None):
     '''
     Employs cross validations on a dataset to obtain the average MSE for ridge/lasso regression or the average accuracy/recall/precision/f1 score for KNN/logistic regression.
 
@@ -17,6 +51,7 @@ def cross_val_score(X, y, folds, model_type, lam=None, k=None):
     model_type  A string, either 'ridge', 'lasso', 'knn' or 'logistic'
     lam         A choice of the tuning parameter lambda in ridge regression
     k           The number of neighbours when training the KNN model
+    thres       The decision threshold for classification in logistic regression. Must be in the interval [0,1]
 
     OUTPUTS:
     MSE         The average mean squared error on the data given the choice of lambda across the folds
@@ -60,7 +95,8 @@ def cross_val_score(X, y, folds, model_type, lam=None, k=None):
             scores.append(score_i)
 
         elif model_type == 'logistic':
-            return 'Under construction! :-)'
+            score_i = folds_score_logistic(X_train, y_train, X_val, y_val, thres=thres)
+            scores.append(score_i)
 
         else :
             raise ValueError(f'Model type must be one of \'ridge\', \'lasso\', \'knn\' or \'logistic\', got {model_type}.')
@@ -94,3 +130,31 @@ def choose_best_k(X_train, y_train, folds, k_range):
         
         best_k_index = np.argmax([score[0] for score in k_scores])
     return k_range[best_k_index]
+
+# Grid search for choosing optimal decision threshold in logistic regression model.
+
+def choose_best_thres(X, y, folds, t_range):
+    '''
+    Performs cross-validation using a grid search to find the optimal value for the probability threshold based on accuracy.
+
+    INPUTS:
+    X       a 2D numpy array of training data, each row being one observation
+    y       a 1D numpy array of the corresponding response variable
+    folds   a 2D numpy array, each row consisting of a list of indices of a single fold
+    t_range a 1D numpy array of different threshold values to search over
+
+    OUTPUTS:
+    t       float, the optimum threshold which maximises classification accuracy
+    '''
+    
+    N = len(folds)
+    scores = np.zeros((len(t_range),))
+    
+    for i, thres in enumerate(t_range):
+        
+        scores[i] = cross_val_score(X, y, folds, model_type='logistic', thres=thres)
+        print(f'Accuracy for {N}-folds CV with thres={thres} is {scores[i]:.3f}')
+
+    best_index = np.argmax(scores)
+    
+    return t_range[best_index]

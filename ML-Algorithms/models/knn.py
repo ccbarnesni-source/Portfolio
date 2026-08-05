@@ -85,32 +85,5 @@ def predict(X_train, y_train, X_test, k=5):
     # Count number of occurences of label with np.bincount and choose the label that has most with np.argmax
     M = len(neighbours)
     y_pred = np.array([ np.argmax(np.bincount(np.array(y_train[neighbours[m]], dtype=int))) for m in range(M)])
-    
+
     return y_pred
-
-# Grid search for optimal value of k
-
-def choose_best_k(X_train, y_train, folds, k_range):
-    '''
-    Performs a grid search for the optimum value of k using accuracy as the metric to maximise
-
-    INPUTS:
-    X_train : a 2D numpy array of training data, each row being one observation
-    y_train : a 1D numpy array of the corresponding response variable
-    folds : a 2D numpy array, each row consisting of a list of indices of a single fold
-    k_range : a 1D numpy array of different values of k to search over
-
-    OUTPUT:
-    The optimal choice of k
-    '''
-    
-    k_scores = [] 
-    
-    for i, k in enumerate(k_range):
-        k_scores.append( cross_val_score(X_train, y_train, folds, model_type='knn', k=k) )
-        print(f'For {k} neighbours, accuracy = {k_scores[i][0]:.3f}, recall = {k_scores[i][1]:.3f}, precision = {k_scores[i][2]:.3f}, f1 = {k_scores[i][3]:.3f} ')
-
-        # Select best k based on accuracy
-        
-        best_k_index = np.argmax([score[0] for score in k_scores])
-    return k_range[best_k_index]
