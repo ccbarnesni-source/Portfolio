@@ -79,7 +79,7 @@ def logistic_grads(X, y, beta, beta_0):
   
     return grads, cost
 
-def optimise(X, y, max_iterations=10000, learning_rate=0.01, print_cost=False, tol=1e-8):
+def optimise(X, y, max_iters=10000, learning_rate=0.01, print_cost=False, tol=1e-8):
     '''
     Implements gradient descent to minimise the negative log likelihood function for logistic regression
 
@@ -104,7 +104,7 @@ def optimise(X, y, max_iterations=10000, learning_rate=0.01, print_cost=False, t
     
     costs = []
     previous_cost = np.inf
-    for i in range(max_iterations):
+    for i in range(max_iters):
 
         # Calculate cost and gradients
         grads, cost = logistic_grads(X, y, beta, beta_0)

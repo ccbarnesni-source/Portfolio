@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 def coefficients(X,y,lam):
     '''
@@ -13,6 +12,10 @@ def coefficients(X,y,lam):
     OUTPUTS:
     an p x 1 array of ridge regression coefficients
     '''
+
+    # If pandas series/dataframe is given, convert to a numpy array first
+    X = np.asarray(X)
+    y = np.asarray(y)
 
     # Check hyperparameter is valid
     if lam<0:
@@ -36,6 +39,9 @@ def predict(X, beta):
     OUTPUTS:
     y_pred  N x 1 array of predicted values 
     '''
+
+    # If pandas series/dataframe is given, convert to a numpy array first
+    X = np.asarray(X)
 
     y_pred = X @ beta
     return y_pred

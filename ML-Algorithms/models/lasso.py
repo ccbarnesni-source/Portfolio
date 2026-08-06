@@ -26,7 +26,7 @@ def grad_l1(beta):
 
 assert np.all(np.equal( grad_l1(np.array([5,1,-1,0])),  np.array([1,1,-1,0]) ))
 
-def coefficients(X, y, lam, n_iters=10000, step_size=1e-3):
+def coefficients(X, y, lam, max_iters=10000, learning_rate=1e-3, tol=1e-8):
     '''
     Computes the lasso regression coefficients using gradient descent methods
 
@@ -57,12 +57,23 @@ def coefficients(X, y, lam, n_iters=10000, step_size=1e-3):
     beta = np.zeros(p)
 
     # Gradient descent
-    for i in range(n_iters):
+
+    prev_beta = np.inf * np.ones(p)
+    converged = False
+
+    for i in range(max_iters):
         grad = -2*Xy + 2*XX @ beta + lam*grad_l1(beta)
         
         # Gradient descent update
-        beta = beta - grad*step_size
-      
+        beta = beta - grad*learning_rate
+
+        if np.sqrt(np.sum((beta - prev_beta)**2)) < tol:
+            print('Converged before max iterations')
+            converged = True
+            break
+    if not converged:
+        print('Failed to converge before max iterations reached')
+
     return beta
 
 def predict(X, beta):

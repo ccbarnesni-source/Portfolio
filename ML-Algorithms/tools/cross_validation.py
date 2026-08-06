@@ -8,7 +8,7 @@ import tools.statistics
 
 # A sub-function for logistic models for evaluating the score on a single fold.
 
-def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5):
+def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5, max_iters=None, learning_rate=None, tol=None):
     '''
     Returns the accuracy of the logistic model on a single fold.
 
@@ -28,7 +28,7 @@ def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5):
     beta_0 = 0
 
     # Obtain the parameter estimates for this fold
-    params, _, _ = models.logistic.optimise(X_train, y_train, beta, beta_0)
+    params, _, _ = models.logistic.optimise(X_train, y_train, beta, beta_0, max_iters=max_iters, learning_rate=learning_rate, tol=tol)
     beta = params['beta']
     beta_0 = params['beta_0']
 
@@ -40,7 +40,7 @@ def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5):
 
 # The primary cross-validation scoring function
 
-def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None):
+def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learning_rate=None, max_iters=None, tol=None):
     '''
     Employs cross validations on a dataset to obtain the average MSE for ridge/lasso regression or the average accuracy/recall/precision/f1 score for KNN/logistic regression.
 
@@ -85,7 +85,7 @@ def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None):
             scores.append(tools.statistics.MSE(y_val, y_pred)) # Compute MSE score
 
         elif model_type == 'lasso':
-            beta = models.lasso.coefficients(X_train, y_train, lam) # Compute coefficients
+            beta = models.lasso.coefficients(X_train, y_train, lam, max_iters=max_iters, learning_rate=learning_rate, tol=tol) # Compute coefficients
             y_pred = models.lasso.predict(X_val, beta) # Compute predicted values
             scores.append(tools.statistics.MSE(y_val, y_pred)) # Compute MSE score
 
