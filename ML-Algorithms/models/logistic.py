@@ -10,8 +10,12 @@ def logistic(x):
     OUTPUTS;
     The logistic function applied element wise to x
     '''
+
+    # We separate cases depending on the sign of x in order to avoid overflow
     
-    return 1. / (1. + np.exp(-x))
+    return np.where(x>0, 1. / (1. + np.exp(-x)), np.exp(x) / (1. + np.exp(x)))
+
+assert (logistic(np.array([1,2])) == np.array([1./(1.+np.exp(-1)), 1./(1.+np.exp(-2))])).all()
 
 def predict_log(X, beta, beta_0):
     '''
@@ -28,6 +32,8 @@ def predict_log(X, beta, beta_0):
     
     p = logistic(X @ beta + beta_0)
     return p.squeeze() # Convert to a 1D array
+
+assert (predict_log(np.array([[1,2],[3,4]]), np.array([5,6]), 7) == logistic(np.array([24, 46]))).all(), f'predict_log failed'
 
 def logistic_grads(X, y, beta, beta_0):
     '''
@@ -47,8 +53,12 @@ def logistic_grads(X, y, beta, beta_0):
     # Obtain the initial probabilities
     p = predict_log(X, beta, beta_0)
 
+    # Clip probabilities close to 0 or 1 to avoid overflow in log terms
+    eps = 1e-15
+    p_clipped = np.clip(p, eps, 1-eps)
+
     # Using gradient descent so we must minimise the negative of the log likelihood function
-    cost = - (y * np.log(p) + (1-y) * np.log(1 - p)).mean()
+    cost = - (y * np.log(p_clipped) + (1-y) * np.log(1 - p_clipped)).mean()
 
     # Calculate derivatives
     dbeta = 0
@@ -69,7 +79,7 @@ def logistic_grads(X, y, beta, beta_0):
   
     return grads, cost
 
-def optimise(X, y, num_iterations=5000, learning_rate=0.005, print_cost=False):
+def optimise(X, y, max_iterations=10000, learning_rate=0.01, print_cost=False, tol=1e-8):
     '''
     Implements gradient descent to minimise the negative log likelihood function for logistic regression
 
@@ -93,7 +103,8 @@ def optimise(X, y, num_iterations=5000, learning_rate=0.005, print_cost=False):
     beta_0 = 0
     
     costs = []
-    for i in range(num_iterations):
+    previous_cost = np.inf
+    for i in range(max_iterations):
 
         # Calculate cost and gradients
         grads, cost = logistic_grads(X, y, beta, beta_0)
@@ -109,10 +120,21 @@ def optimise(X, y, num_iterations=5000, learning_rate=0.005, print_cost=False):
         # record the costs
         if i % 100 == 0:
             costs.append(cost)
+
+        if abs(cost-previous_cost) < tol:
+            converged = True
+            print('Convergence to within tolerance reached.')
+            break
+
+        previous_cost = cost
       
         # print the cost every 100 iterations
         if print_cost and i % 100 == 0:
             print ("cost after iteration %i: %f" %(i, cost))
+
+    if not converged:
+        print('Max iterations reached without convergence.')
+        
   
     # save parameters and gradients in dictionary
     params = {"beta": beta, "beta_0": beta_0}
@@ -122,7 +144,7 @@ def optimise(X, y, num_iterations=5000, learning_rate=0.005, print_cost=False):
 
 def predict(X_test, beta, beta_0, thres=0.5):
     '''
-    Classifies a set of observations using a logistic model
+    Classifies a set of observations using a logistic model using a given threshold
     
     INPUTS:
     X_test - an n x p array of observations
