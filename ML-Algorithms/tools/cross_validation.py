@@ -40,7 +40,7 @@ def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5, max_iters=
 
 # The primary cross-validation scoring function
 
-def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learning_rate=None, max_iters=None, tol=None):
+def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learning_rate=1e-3, max_iters=1000, tol=1e-8):
     '''
     Employs cross validations on a dataset to obtain the average MSE for ridge/lasso regression or the average accuracy/recall/precision/f1 score for KNN/logistic regression.
 

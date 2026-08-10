@@ -31,6 +31,10 @@ def k_neighbours(X_train, X_val, k=5, return_distance=False):
     OUTPUTS:
     neigh_ind : a 2D numpy array containing the indices of each of the nearest neighbours
     '''
+
+    # Convert to numpy arrays first if needed.
+    X_train = np.array(X_train)
+    X_val = np.array(X_val)
     
     dist = []
     neigh_ind = []
@@ -74,6 +78,11 @@ def predict(X_train, y_train, X_test, k=5):
     OUTPUT:
     y_pred : a 1D numpy array of the predicted classes on the test set
     '''
+
+    # Convert to numpy arrays first if not already done.
+    X_train = np.array(X_train)
+    y_train = np.array(y_train)
+    X_test = np.array(X_test)
 
     # Check hyperparameter is valid
     if not isinstance(k, int):

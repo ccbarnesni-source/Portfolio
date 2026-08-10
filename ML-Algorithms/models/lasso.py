@@ -26,7 +26,11 @@ def grad_l1(beta):
 
 assert np.all(np.equal( grad_l1(np.array([5,1,-1,0])),  np.array([1,1,-1,0]) ))
 
-def coefficients(X, y, lam, max_iters=10000, learning_rate=1e-3, tol=1e-8):
+def loss(X, y, beta, lam):
+    result = np.sum((y-X@beta)**2) + lam * np.sum(np.abs(beta))
+    return result
+
+def coefficients(X, y, lam, max_iters=1000, learning_rate=1e-3, tol=1e-8):
     '''
     Computes the lasso regression coefficients using gradient descent methods
 
@@ -50,27 +54,32 @@ def coefficients(X, y, lam, max_iters=10000, learning_rate=1e-3, tol=1e-8):
     y = np.asarray(y)
 
     n, p = X.shape
-    XX = X.T @ X  
-    Xy = X.T @ y 
+    XX = (X.T @ X) / n  
+    Xy = (X.T @ y) / n 
     
     # Initialise betas
     beta = np.zeros(p)
 
     # Gradient descent
 
-    prev_beta = np.inf * np.ones(p)
+    prev_loss = loss(X,y,beta,lam)
     converged = False
 
     for i in range(max_iters):
-        grad = -2*Xy + 2*XX @ beta + lam*grad_l1(beta)
+        grad = -Xy + XX @ beta + lam*grad_l1(beta)
         
         # Gradient descent update
         beta = beta - grad*learning_rate
 
-        if np.sqrt(np.sum((beta - prev_beta)**2)) < tol:
+        current_loss = loss(X,y,beta,lam)
+
+        if abs(current_loss-prev_loss) < tol:
             print('Converged before max iterations')
             converged = True
             break
+
+        prev_loss = current_loss
+
     if not converged:
         print('Failed to converge before max iterations reached')
 

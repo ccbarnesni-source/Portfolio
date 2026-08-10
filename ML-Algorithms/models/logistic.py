@@ -98,12 +98,17 @@ def optimise(X, y, max_iters=10000, learning_rate=0.01, print_cost=False, tol=1e
     costs - a list of the cost function every 100 iterations, useful for debugging purposes
     '''
 
+    # Convert to numpy arrays if not already done.
+    X = np.array(X)
+    y = np.array(y)
+
     # Initialise the vector beta and the corresponding intercept term
     beta = np.zeros(shape = (X.shape[1],1), dtype=float)
     beta_0 = 0
     
     costs = []
     previous_cost = np.inf
+    converged = False
     for i in range(max_iters):
 
         # Calculate cost and gradients
