@@ -30,7 +30,7 @@ def loss(X, y, beta, lam):
     result = np.sum((y-X@beta)**2) + lam * np.sum(np.abs(beta))
     return result
 
-def coefficients(X, y, lam, max_iters=1000, learning_rate=1e-3, tol=1e-8):
+def coefficients(X, y, lam, max_iters=1000, learning_rate=1e-3, tol=1e-8, print_convergence=True):
     '''
     Computes the lasso regression coefficients using gradient descent methods
 
@@ -73,14 +73,14 @@ def coefficients(X, y, lam, max_iters=1000, learning_rate=1e-3, tol=1e-8):
 
         current_loss = loss(X,y,beta,lam)
 
-        if abs(current_loss-prev_loss) < tol:
+        if (abs(current_loss-prev_loss) < tol) & print_convergence :
             print('Converged before max iterations')
             converged = True
             break
 
         prev_loss = current_loss
 
-    if not converged:
+    if (not converged) & print_convergence:
         print('Failed to converge before max iterations reached')
 
     return beta

@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import models.lasso
 import models.ridge
 import models.knn
@@ -40,21 +39,25 @@ def folds_score_logistic(X_train, y_train, X_test, y_test, thres=0.5, max_iters=
 
 # The primary cross-validation scoring function
 
-def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learning_rate=1e-3, max_iters=1000, tol=1e-8):
+def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learning_rate=1e-3, max_iters=1000, tol=1e-8, print_convergence=False):
     '''
     Employs cross validations on a dataset to obtain the average MSE for ridge/lasso regression or the average accuracy/recall/precision/f1 score for KNN/logistic regression.
 
     INPUTS:
-    X           Matrix of training data of predictor variables
-    y           Vector of training data on response variable
-    folds       Indices containing each of the folds to implement cross-validation
-    model_type  A string, either 'ridge', 'lasso', 'knn' or 'logistic'
-    lam         A choice of the tuning parameter lambda in ridge regression
-    k           The number of neighbours when training the KNN model
-    thres       The decision threshold for classification in logistic regression. Must be in the interval [0,1]
+    X                   Matrix of training data of predictor variables
+    y                   Vector of training data on response variable
+    folds               Indices containing each of the folds to implement cross-validation
+    model_type          A string, either 'ridge', 'lasso', 'knn' or 'logistic'
+    lam                 A choice of the tuning parameter lambda in ridge regression
+    k                   The number of neighbours when training the KNN model
+    thres               The decision threshold for classification in logistic regression. Must be in the interval [0,1]
+    learning_rate       The learning rate to be employed for gradient descent methods in logistic and lasso regression
+    max_iters           Maximum number of iterations for gradient descent methods - only relevant for logisitic and lasso regression
+    tol                 The stopping criteria for gradient descent methods. When the loss function changes by <tol in a given step, the procedure is terminated
+    print_convergence   Boolean: whether or not to suppress convergence messages
 
     OUTPUTS:
-    MSE         The average mean squared error on the data given the choice of lambda across the folds
+    MSE                 The average mean squared error on the data given the choice of lambda across the folds
     '''
 
     # If pandas series/dataframe is given, convert to a numpy array first
@@ -85,7 +88,7 @@ def cross_val_score(X, y, folds, model_type, lam=None, k=None, thres=None, learn
             scores.append(tools.statistics.MSE(y_val, y_pred)) # Compute MSE score
 
         elif model_type == 'lasso':
-            beta = models.lasso.coefficients(X_train, y_train, lam, max_iters=max_iters, learning_rate=learning_rate, tol=tol) # Compute coefficients
+            beta = models.lasso.coefficients(X_train, y_train, lam, max_iters=max_iters, learning_rate=learning_rate, tol=tol, print_convergence=False) # Compute coefficients
             y_pred = models.lasso.predict(X_val, beta) # Compute predicted values
             scores.append(tools.statistics.MSE(y_val, y_pred)) # Compute MSE score
 
