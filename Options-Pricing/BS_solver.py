@@ -1,7 +1,48 @@
 import numpy as np
 import scipy as sp
 
+def modified_thomas_algorithm(lower, main, upper, rhs, K, dS, put=False):
+    # Since we handle the boundaries separately, the length of the diagonal will be 2 less than the grid on which we compute V
+    a = lower.copy()
+    b = main.copy()
+    c = upper.copy()
+    d = rhs.copy()
+    n = len(main)
+
+    # Forward sweep eliminating lower diagonal
+    c[0] /= b[0]
+    d[0] /= b[0]
+
+    for i in range(1, n-1):
+        # In our mathematical notation, the first entry in the lower diagonal is denoted a_2 because it first appears on the 2nd row of the matrix.
+        # We must therefore reduce our indexing for the lower diagonal by 1
+
+        denominator = b[i]-a[i-1]*c[i-1]
+        c[i] /= denominator
+        d[i] = (d[i] - a[i-1]*d[i-1]) / denominator
+
+     # d has one more dimension than the upper diagonal, so we handle it here.
+    denominator = b[n-1]-a[n-2]*c[n-2]
+    d[n-1] = (d[n-1] - a[n-2]*d[n-2]) / denominator
+
+    b = np.ones(n)
+
+    # Backward sweep to solve applying early-exercise constraint
+    solution = np.zeros(n)
+    solution[n-1] = d[n-1]
+
+    for i in range(2, n+1):
+        solution[n-i] = d[n-i] - c[n-i]*solution[n-i+1]
+        if put:
+            solution[n-i] = np.maximum(solution[n-i], K - dS*(n+1-i) )
+        else:
+            solution[n-i] = np.maximum(solution[n-i], dS*(n+1-i) - K )
+
+    return solution
+
 def BS_solver_crank_nicholson(S_upper, T, K, r, sigma, q=None, put=False, American=False, m=1000, n=1000):
+
+    assert (S_upper > K)
 
     # Time and stock increments
     dS = S_upper/m
@@ -13,36 +54,42 @@ def BS_solver_crank_nicholson(S_upper, T, K, r, sigma, q=None, put=False, Americ
     # Terminal and far-field conditions depending on call or put
     if put:
         V[:,n] = np.maximum([K-i*dS for i in np.arange(m+1)], 0)
-        V[0, :] = [ K*np.exp(-r*(T-j*dt)) for j in range(n+1) ]
+        # Because of early exercise, we do not need to discount the strike price to present value for American options
+        if American:
+            V[0, :] = K * np.ones(n+1)
+        else:
+            V[0, :] = [ K*np.exp(-r*(T-j*dt)) for j in range(n+1) ]
     else:
         V[:,n] = np.maximum([i*dS-K for i in np.arange(m+1)], 0)
         V[m, :] = [ S_upper - K*np.exp(-r*(T-j*dt)) for j in range(n+1) ]
 
     # Define our matrix A
-    lower = np.array([ dt*i*(r - i*(sigma**2)) for i in range(2,m) ])
-    main = np.array([ 4+2*dt*(r+(i**2)*sigma**2) for i in range(1,m) ])
-    upper = np.array([ -dt*i*(r + i*(sigma**2)) for i in range(1,m-1) ])
-    A = sp.sparse.diags([lower, main, upper], offsets=(-1,0,1), format='csc')
+    lower_A = np.array([ dt*i*(r - i*(sigma**2)) for i in range(2,m) ])
+    main_A = np.array([ 4+2*dt*(r+(i**2)*sigma**2) for i in range(1,m) ])
+    upper_A = np.array([ -dt*i*(r + i*(sigma**2)) for i in range(1,m-1) ])
+    A = sp.sparse.diags([lower_A, main_A, upper_A], offsets=(-1,0,1), format='csc')
 
     # Define our matrix D
-    lower = -lower
-    main = np.array([ 4-2*dt*(r+(i**2)*sigma**2) for i in range(1,m) ])
-    upper = -upper
-    D = sp.sparse.diags([lower, main, upper], offsets=(-1,0,1), format='csc')
+    lower_D = -lower_A
+    main_D = np.array([ 4-2*dt*(r+(i**2)*sigma**2) for i in range(1,m) ])
+    upper_D = -upper_A
 
+    D = sp.sparse.diags([lower_D, main_D, upper_D], offsets=(-1,0,1), format='csc')
     # Start loop
     for j in range(n):
         # Compute the RHS of the matrix equation.
         d = D @ V[1:m, n-j]
-
         # In order to apply the boundary condition we must update the either the last entry of d for a call, or the first entry for a put
         if put:
             d[0] += dt*(sigma**2 - r)*( V[0,n-j] + V[0,n-j-1] )
         else:
             d[m-2] += dt*(m-1)*((m-1)*sigma**2 + r)*(V[m, n-j] + V[m, n-j-1])
 
-        # V has dimensions m+1 x n+1 whereas A has dimensions m x m. We initialised V to be zeros so the first row does not need changing.
-        V[1:m, n-j-1] = sp.sparse.linalg.spsolve(A, d)
+        if American:
+            V[1:m, n-j-1] = modified_thomas_algorithm(lower_A, main_A, upper_A, rhs=d, K=K, dS=dS, put=put)
+        else:
+            # V has dimensions m+1 x n+1 whereas A has dimensions m x m. We initialised V to be zeros so the first row does not need changing.
+            V[1:m, n-j-1] = sp.sparse.linalg.spsolve(A, d)
 
     return V
 
