@@ -6,11 +6,11 @@ An investigation into whether there is any statistically detectable signal in st
 [View project](./Stock-Price-Prediction/)
 
 ## ML Algorithms
-Implementation of standard ML algorithms in Python using only NumPy and pandas with mathematical derivations. Sklearn models are used as a baseline comparison for performance of ML algorithms. Algorithms implemented include: OLS, ridge and lasso regression, logistic regression, KNN, all of which achieved a perfect comparison with sklearn models.
+Implementation of standard ML algorithms in Python using only NumPy and pandas with mathematical derivations. Sklearn models are used as a baseline comparison for performance of ML algorithms. Algorithms implemented include: OLS, ridge and lasso regression, logistic regression, KNN. OLS and ridge regression models achieved coefficients that differed by less than `1e-14`. Lasso model achieved coefficients within `1e-2` of sklearn's. KNN model achieved 100% identical predictions on test dataset to sklearn's. Logistic regression achieved 100% identical predictions on test dataset to sklearn's.Logistic regression loss function with `1e-2` of sklearns. Logisitc regression coefficients substantially different to sklearns (order of magnitude `1e2`) despite similar predictions due to differences in gradient descent implementation.
 
 [View project](./ML-Algorithms/)
 
 ## Options Pricing
-A derivation of the analytical solution to the Black-Scholes equation for pricing a European option is provided. Numerical solutions in the case of non-dividend paying American options are provided using both binomial tree and finite difference methods. The finite difference scheme employs a modified Thomas algorithm in order to impose the early-exercise constraint. The numerical methods are successfully benchmarked against known analytic solutions and properties. *This project is currently ongoing and more will be added.*
+A derivation of the analytical solution to the Black-Scholes equation for pricing a European option is provided. Numerical solutions in the case of non-dividend paying American options are provided using both binomial tree and finite difference methods. The finite difference scheme employs a modified Thomas algorithm in order to impose the early-exercise constraint. The numerical methods are successfully benchmarked against known analytic solutions and properties. *This project is currently ongoing and more will be added over time.*
 
 [View project](./Options-Pricing/)
