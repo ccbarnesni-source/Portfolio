@@ -40,7 +40,7 @@ def modified_thomas_algorithm(lower, main, upper, rhs, K, dS, put=False):
 
     return solution
 
-def BS_solver_crank_nicholson(S_upper, T, K, r, sigma, q=None, put=False, American=False, m=1000, n=1000):
+def BS_solver_crank_nicolson(S_upper, T, K, r, sigma, q=None, put=False, American=False, m=1000, n=1000):
 
     assert (S_upper > K)
 
@@ -102,7 +102,6 @@ def BS_solver_binomial_tree(S0, T, K, r, sigma, d=None, put=False, American=Fals
     d = np.exp(-sigma*np.sqrt(dt))
     p = (np.exp(r*dt)-d)/(u-d)
     q = 1-p
-
 
     # Set initial stock price
     V[0,0] = S0
