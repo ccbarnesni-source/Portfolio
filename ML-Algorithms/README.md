@@ -14,6 +14,8 @@ This project aims to replicate standard machine learning models from scratch usi
 - Logistic regression loss function with `1e-2` of sklearns
 - Logisitc regression coefficients substantially different to sklearns (order of magnitude `1e2`) despite similar predictions
 
+![Comparison of Lasso Grid Search](Graph.png)
+
 ## Data
 
 The notebook uses sklearn's built in datasets `fetch_california_housing` and `load_breast_cancer` for regression and classification problems respectively. The notebook will retrieve this data automatically.
