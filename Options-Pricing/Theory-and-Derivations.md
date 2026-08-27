@@ -78,9 +78,11 @@ In the case of a call option with strike price $K$, the expected payoff at matur
 In the case of a put option the corresponding conditions are
 
 $$
-V(S,t) \sim 0 \text{ as } S\rightarrow \infty, \\
-V(0,t) = Ke^{-r(T-t)}, \\
-V(S,T) = \max{(K-S, 0)}.
+\begin{gather}
+    V(S,t) \sim 0 \text{ as } S\rightarrow \infty, \\
+    V(0,t) = Ke^{-r(T-t)}, \\
+    V(S,T) = \max{(K-S, 0)}.
+\end{gather}
 $$
 
 ### 1.2 Transformation to heat equation
@@ -114,9 +116,11 @@ $$
 which we recognise as the well-known heat equation. The corresponding transformed boundary conditions are
 
 $$
-\lim_{x\rightarrow -\infty} u(x,\tau) = 0, \\
-u(x, \tau) \sim K(e^{x+\tau}-1) \text{ as } x\rightarrow \infty, \\
-u(x,0) = K(e^x-1)H(x),
+\begin{gather}
+    \lim_{x\rightarrow -\infty} u(x,\tau) = 0, \\
+    u(x, \tau) \sim K(e^{x+\tau}-1) \text{ as } x\rightarrow \infty, \\
+    u(x,0) = K(e^x-1)H(x),
+\end{gather}
 $$
 
 where $H(x)$ is the Heaviside step function.
@@ -124,9 +128,11 @@ where $H(x)$ is the Heaviside step function.
 For a put option, the corresponding conditions are
 
 $$
-\lim_{x\rightarrow \infty} u(x, \tau) = 0, \\
-u(x,\tau) \sim K(1-e^{x+\tau}) \text{ as } x \rightarrow -\infty, \\
-u(x, 0) = K(1-e^x)H(-x).
+\begin{gather}
+    \lim_{x\rightarrow \infty} u(x, \tau) = 0, \\
+    u(x,\tau) \sim K(1-e^{x+\tau}) \text{ as } x \rightarrow -\infty, \\
+    u(x, 0) = K(1-e^x)H(-x).
+\end{gather}
 $$
 
 ### 1.3 Analytical solution
